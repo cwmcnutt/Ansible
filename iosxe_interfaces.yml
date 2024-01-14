@@ -1,0 +1,11 @@
+---
+#~/src/hosts
+
+- hosts: CSR1kv_routers
+  name: Verify Interfaces
+  connection: network_cli
+
+  tasks:
+    - name: Display interfaces
+      ios_command:
+        commands: show ip interface brief
