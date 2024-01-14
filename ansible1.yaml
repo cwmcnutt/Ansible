@@ -1,0 +1,7 @@
+---
+
+/etc/ansible/ansible.cfg
+
+inventory=/etc/ansible/hosts
+host_key_checking=false
+
