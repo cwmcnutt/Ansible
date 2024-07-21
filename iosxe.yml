@@ -1,7 +1,7 @@
 ---
 #~/src/hosts
 
-- hosts: CSR1kv_routers
+- hosts: lab-routers
   name: Verify Interfaces
   connection: network_cli
 
