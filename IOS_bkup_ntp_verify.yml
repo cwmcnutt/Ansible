@@ -1,0 +1,52 @@
+---
+- name: Cisco IOS Automation - Backup, NTP Config & Verification
+  hosts: cisco_ios
+  gather_facts: no
+  connection: network_cli
+
+  vars:
+    ntp_servers:
+      - 192.168.1.1
+      - 192.168.1.2
+
+  tasks:
+
+    - name: Backup running configuration
+      ios_config:
+        backup: yes
+      register: backup_result
+
+    - name: Show backup file location
+      debug:
+        msg: "Backup saved to {{ backup_result.backup_path }}"
+
+    - name: Configure NTP servers
+      ios_config:
+        lines:
+          - "ntp server {{ item }}"
+      loop: "{{ ntp_servers }}"
+
+    - name: Save configuration
+      ios_config:
+        save_when: modified
+
+    - name: Pause briefly to allow config to apply
+      pause:
+        seconds: 5
+
+    - name: Ping NTP servers to verify reachability
+      ios_command:
+        commands:
+          - "ping {{ item }}"
+      loop: "{{ ntp_servers }}"
+      register: ping_results
+
+    - name: Show ping results
+      debug:
+        var: ping_results.results
+
+    - name: Fail if any NTP servers are unreachable
+      fail:
+        msg: "NTP server {{ item.item }} is unreachable."
+      when: "'!!!!!' not in item.stdout[0]"
+      loop: "{{ ping_results.results }}"
